@@ -1,6 +1,3 @@
-//The first line of code should take the keccak256 hash of abi.encodePacked(_str) to generate a pseudo-random hexadecimal, typecast it as a uint, and finally store the result in a uint called rand.
-
-//We want our DNA to only be 16 digits long (remember our dnaModulus?). So the second line of code should return the above value modulus (%) dnaModulus
 pragma solidity >=0.5.0 <0.6.0;
 
 contract ZombieFactory {
@@ -17,8 +14,13 @@ contract ZombieFactory {
 
     Zombie[] public zombies;
 
-    function _createZombie(string memory _name, uint _dna) private {
-        uint id = zombies.push(Zombie(_name,_dna)) -1;
+    mapping (uint => address) public zombieToOwner;
+    mapping (address => uint) ownerZombieCount;
+
+    function _createZombie(string memory _name, uint _dna) internal {
+        uint id = zombies.push(Zombie(_name, _dna)) - 1;
+        zombieToOwner[id] = msg.sender;
+        ownerZombieCount[msg.sender]++;
         emit NewZombie(id, _name, _dna);
     }
 
@@ -28,6 +30,7 @@ contract ZombieFactory {
     }
 
     function createRandomZombie(string memory _name) public {
+        require(ownerZombieCount[msg.sender] == 0);
         uint randDna = _generateRandomDna(_name);
         _createZombie(_name, randDna);
     }
