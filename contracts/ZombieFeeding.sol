@@ -19,7 +19,13 @@ contract ZombieFeeding is ZombieFactory {
     //address ckAddress = 0x06012c8cf97BEaD5deAe237070F9587f8E7A266d; remove
     //khởi tạo contract kitty bằng địa chỉ trên
     //KittyInterface kittyContract = KittyInterface(ckAddress);
-    KittyInterface kittyContract;// chi dung de khai bao
+    KittyInterface kittyContract;
+    // chi dung de khai bao
+  //modifier ownerOf(uint _zombieId){
+    modifier onlyOwnerOf(uint _zombieId){
+     require(msg.sender == zombieToOwner[_zombieId]);
+     _;
+  }
   function setKittyContractAddress( address _address) external onlyOwner { // khong ai ben ngoai thay doi duoc kittyContract
     kittyContract = KittyInterface(_address);
   }
@@ -29,8 +35,10 @@ contract ZombieFeeding is ZombieFactory {
   function _isReady(Zombie storage _zombie) internal view returns (bool) {
         return(_zombie.readyTime <= now);
   }
-  function feedAndMultiply(uint _zombieId, uint _targetDna, string memory _species) internal { // thay tu public sang
+  
+  function feedAndMultiply(uint _zombieId, uint _targetDna, string memory _species) internal  onlyOwnerOf(_zombieId) { // thay tu public sang
     require(msg.sender == zombieToOwner[_zombieId]);
+    // kiem tra zombie thuoc quyen so huu
     Zombie storage myZombie = zombies[_zombieId];
     require (_isReady(myZombie)); // kiem tra _isReady va pass ham myZombie 
     _targetDna = _targetDna % dnaModulus;
