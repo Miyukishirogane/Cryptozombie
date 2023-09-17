@@ -1,8 +1,9 @@
-pragma solidity >=0.5.0 <0.6.0;
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.5.2 <= 0.8.21;
 
 import "./Zombiefactory.sol";
-contract KittyInterface{
-    function getKitty(uint256 _id) external view returns (
+abstract contract  KittyInterface  {
+    function getKitty(uint256 _id) external virtual view returns (
     bool isGestating,
     bool isReady,
     uint256 cooldownIndex,
@@ -21,7 +22,7 @@ contract ZombieFeeding is ZombieFactory {
     //KittyInterface kittyContract = KittyInterface(ckAddress);
     KittyInterface kittyContract;
     // chi dung de khai bao
-  //modifier ownerOf(uint _zombieId){
+  
     modifier onlyOwnerOf(uint _zombieId){
      require(msg.sender == zombieToOwner[_zombieId]);
      _;
@@ -30,12 +31,13 @@ contract ZombieFeeding is ZombieFactory {
     kittyContract = KittyInterface(_address);
   }
   function _triggerCooldown(Zombie storage _zombie) internal {
-      _zombie.readyTime = uint32(now + cooldownTime);
+      _zombie.readyTime = uint32(block.timestamp + cooldownTime);
   }
+  // gioi han thoi gian zombie an
   function _isReady(Zombie storage _zombie) internal view returns (bool) {
-        return(_zombie.readyTime <= now);
+        return(_zombie.readyTime <= block.timestamp);
   }
-  
+  // ham cho xem thoi gian hoi chieu
   function feedAndMultiply(uint _zombieId, uint _targetDna, string memory _species) internal  onlyOwnerOf(_zombieId) { // thay tu public sang
     require(msg.sender == zombieToOwner[_zombieId]);
     // kiem tra zombie thuoc quyen so huu
@@ -44,6 +46,7 @@ contract ZombieFeeding is ZombieFactory {
     _targetDna = _targetDna % dnaModulus;
     uint newDna = (myZombie.dna + _targetDna) / 2;
      if (keccak256(abi.encodePacked(_species)) == keccak256(abi.encodePacked("kitty"))) {
+      // encode: chuyển thanhd byte
       newDna = newDna - newDna % 100 + 99;
     }
     _createZombie("NoName", newDna);

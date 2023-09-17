@@ -1,4 +1,5 @@
-pragma solidity >=0.5.0 <0.6.0;
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.5.2 <= 0.8.21;
 
 /**
 * @title Ownable
@@ -12,12 +13,15 @@ contract Ownable {
     address indexed previousOwner,
     address indexed newOwner
   );
-
+  //indexed: chỉ ra vị trí dữ liệu nằm ở đau
+  // event chỉ lưu 1 thời gian
+  //tx.origin: luôn traẻ về address của ng thự hiện giao dịch(tx)
   /**
   * @dev The Ownable constructor sets the original `owner` of the contract to the sender
   * account.
   */
-  constructor() internal {
+  constructor(){
+     // sinh ra từ lúc khởi tạo, dùng 1 lần
     _owner = msg.sender;
     emit OwnershipTransferred(address(0), _owner);
   }
